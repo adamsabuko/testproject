@@ -76,7 +76,7 @@ def home():
     # Fetch Rows
     detergents = cursor.fetchall()
 
-    return render_template('home.html', detergents=detergents,
+    return render_template('index.html', detergents=detergents,
                            smartphones=smartphones)
 
 
