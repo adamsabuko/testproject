@@ -16,24 +16,6 @@ def home():
     connection = pymysql.connect(host='localhost', user='root', password='',
                                  database='DemoClassDB')
 
-
-    # SQL 1  - Smartphones
-    sql1 = "SELECT * FROM products where product_category = 'Smartphones'"
-    # Cursor - Used to run/execute above SQL
-    cursor = connection.cursor()
-    # Execute SQL
-    cursor.execute(sql1)
-    # Fetch Rows
-    smartphones = cursor.fetchall()
-
-    # SQL 2  - Detergents
-    sql2 = "SELECT * FROM products where product_category = 'x'"
-
-    # Execute SQL
-    cursor.execute(sql2)
-    # Fetch Rows
-    detergents = cursor.fetchall()
-
     return render_template('index.html', detergents=detergents,
                            smartphones=smartphones)
 
