@@ -10,7 +10,7 @@ app.secret_key = "AW_r%@jN*HU4AW_r%@jN*HU4AW_r%@jN*HU4"
 
 import pymysql
 
-@app.route('/')
+@app.route('/index.html')
 def home():
     # Establish a dbase connection
     connection = pymysql.connect(host='localhost', user='root', password='',
