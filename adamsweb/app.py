@@ -10,48 +10,6 @@ app.secret_key = "AW_r%@jN*HU4AW_r%@jN*HU4AW_r%@jN*HU4"
 
 import pymysql
 
-@app.route('/upload', methods=['POST', 'GET'])
-def upload_product():
-    # Below if works when the Form in upload.html is Submitted/Sent
-    if request.method == 'POST':
-        # Below receives all variables sent/submitted from the Form
-        product_name = request.form['product_name'] 
-        product_desc = request.form['product_desc']
-        product_cost = request.form['product_cost']
-        product_category = request.form['product_category']
-        product_image_name = request.files['product_image_name']
-        product_image_name.save('static/images/' + product_image_name.filename) # Saves the image File in images folder
-
-        # Connect to DB
-        connection = pymysql.connect(
-            host='localhost', user='root', password='', database='DemoClassDB')
-        # Create a Cursor
-        cursor = connection.cursor()
-        
-        # Prepare you data, Notice the 'product_image_name.filename' below, Gets only the image name not the File
-        data = (product_name, product_desc, product_cost,
-                product_category, product_image_name.filename)
-        # Do SQL, Be keen on columns spelling, should be same as in database
-        # %s in the SQL means placeholder to be replace by the data above.
-        sql = "insert into products (product_name, product_desc, product_cost, product_category, product_image_name) values (%s, %s, %s, %s, %s)"
-        try:
-            # Excecute SQL, parsing your data
-            cursor.execute(sql, data)
-            connection.commit() # Commit to write changes to database and render a success message to upload template
-            return render_template('upload.html', message='Product Added Successfully')
-        except:
-            # In case of an Error/Exception rollback to undo chnages and return a fail message to upload template
-            connection.rollback()
-            return render_template('upload.html', message='Failed, Try Again Later')
-
-    else:
-        # Below renders the template when a user accesses the /upload route, it shows the upload.html so that the user can input product details and POST/submit
-        return render_template('upload.html', message='Please Add Product Details')
-
-
-
-
-
 @app.route('/')
 def home():
     # Establish a dbase connection
@@ -80,88 +38,6 @@ def home():
                            smartphones=smartphones)
 
 
-@app.route('/single_item/<product_id>')
-def single_item(product_id):
-    # Establish a dbase connection
-    connection = pymysql.connect(host='localhost', user='root', password='',
-                                 database='DemoClassDB')
-    # SQL  - %s is a placeholder
-    sql = "SELECT * FROM products WHERE product_id = %s"
-
-    # Cursor - Used to run/execute above SQL
-    cursor = connection.cursor()
-    # Execute SQL - NB: sql had a placeholder
-    cursor.execute(sql, (product_id))
-    # Check no product found
-    if cursor.rowcount == 0:
-        return render_template('single_item.html', message='Item Not Found')
-    else:
-        # Product Found, Retrieve It, 1 product
-        product = cursor.fetchone()
-        return render_template('single_item.html', product=product)
-
-
-@app.route('/signup', methods=['POST', 'GET'])
-def signup():
-    if request.method == 'POST':
-            username = request.form['username']
-            email = request.form['email']
-            phone = request.form['phone']
-            password1 = request.form['password1']
-            password2 = request.form['password2']
-
-            if len(password1) < 8:
-                return render_template('signup.html', error='Password must more than 8 xters')
-            elif password1 != password2:
-                return render_template('signup.html', error='Password Do Not Match')
-            else:
-                connection = pymysql.connect(host='localhost', user='root', password='',
-                                             database='DemoClassDB')
-                sql = ''' 
-                     insert into users(username, password, phone, email) 
-                     values(%s, %s, %s, %s)
-                 '''
-                cursor = connection.cursor()
-                cursor.execute(sql, (username, password1, phone, email))
-                connection.commit()
-                return render_template('signup.html', success='Registered Successfully')
-
-    else:
-        return render_template('signup.html')
-
-
-@app.route('/signin', methods=['POST', 'GET'])
-def signin():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        connection = pymysql.connect(host='localhost', user='root', password='',
-                                     database='DemoClassDB')
-
-        sql = '''
-           select * from users where username = %s and password = %s
-        '''
-        cursor = connection.cursor()
-        cursor.execute(sql, (username, password))
-
-        if cursor.rowcount == 0:
-            return render_template('signin.html', error='Invalid Credentials')
-        else:
-            session['key'] = username  # link the session key with username
-            return redirect('/')  # redirect to product Default route
-    else:
-        return render_template('signin.html')
-
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/signin')
-
-
-# here below login
-# you can go to View - Tool Windows - Terminal
 import requests
 import datetime
 import base64
@@ -193,13 +69,13 @@ def mpesa_payment():
 
         # BODY OR PAYLOAD
         payload = {
-            "BusinessShortCode": "174379",
+            "BusinessShortCode": "5057335",
             "Password": "{}".format(password),
             "Timestamp": "{}".format(timestamp),
             "TransactionType": "CustomerPayBillOnline",
             "Amount": "1",  # use 1 when testing
             "PartyA": phone,  # change to your number
-            "PartyB": "174379",
+            "PartyB": "5057335",
             "PhoneNumber": phone,
             "CallBackURL": "https://modcom.co.ke/job/confirmation.php",
             "AccountReference": "account",
@@ -220,4 +96,4 @@ def mpesa_payment():
                '<a href="/" class="btn btn-dark btn-sm">Back to Products</a>'
 
 
-app.run(debug=True)
+app.run(debug)
